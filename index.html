@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="IndizaIA: asistente bibliotecario para análisis documental, LCSH, MARC e indización." />
+  <meta name="theme-color" content="#0b1220" />
+  <title>IndizaIA · Asistente de indización bibliotecaria</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="IndizaIA, inicio">
+      <span class="brand-mark">I</span>
+      <span><strong>IndizaIA</strong><small>Asistente bibliotecario explicable</small></span>
+    </a>
+    <nav class="nav" aria-label="Navegación principal">
+      <button class="nav-btn active" data-view="inicio">Inicio</button>
+      <button class="nav-btn" data-view="materias">Materias LC</button>
+      <button class="nav-btn" data-view="indizacion">Indización</button>
+      <button class="nav-btn" data-view="metodologia">Metodología</button>
+      <button class="nav-btn" data-view="ayuda">Instrucciones</button>
+    </nav>
+    <span class="privacy-pill" title="El PDF se procesa en este navegador">🔒 Procesamiento local</span>
+  </header>
+
+  <main class="shell">
+    <section id="view-inicio" class="view active">
+      <div class="hero panel">
+        <div>
+          <span class="eyebrow">ORGANIZACIÓN Y RECUPERACIÓN DE INFORMACIÓN</span>
+          <h1>Analiza. Verifica. Explica.</h1>
+          <p class="lead">IndizaIA combina análisis documental local, autoridades de la Library of Congress, MARC 21, Crossref y el Tesauro de la UNESCO para proponer acceso temático sin ocultar cómo llegó a cada decisión.</p>
+          <div class="hero-actions">
+            <button class="primary" data-jump="materias">Asignar materias LC</button>
+            <button class="secondary" data-jump="indizacion">Indizar un documento</button>
+          </div>
+        </div>
+        <div class="principles">
+          <div class="principle"><span>01</span><b>Autoridad primero</b><p>Un término no se presenta como LCSH sin comprobar la autoridad.</p></div>
+          <div class="principle"><span>02</span><b>Evidencia documental</b><p>Título, resumen, contenido, introducción y conclusiones pesan más que menciones incidentales.</p></div>
+          <div class="principle"><span>03</span><b>Juicio profesional</b><p>Los casos ambiguos se marcan para revisión; la herramienta no inventa certeza.</p></div>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <article class="panel compact"><span class="icon">⌁</span><h3>DOI / ISBN</h3><p>Recupera metadatos desde Crossref y los usa como evidencia auxiliar, no como sustituto del análisis temático.</p></article>
+        <article class="panel compact"><span class="icon">LC</span><h3>LCSH + MARC</h3><p>Consulta ID.LOC.GOV, recupera notas de alcance y relaciones, y propone el campo MARC que corresponde.</p></article>
+        <article class="panel compact"><span class="icon">PDF</span><h3>Texto digital u OCR</h3><p>Extrae texto localmente. Los PDF digitales ofrecen mayor confiabilidad; el OCR se usa como apoyo para escaneos.</p></article>
+      </div>
+
+      <div class="notice info"><b>Privacidad.</b> El archivo PDF y su texto completo no se cargan a IndizaIA ni se guardan en una base de datos. Las consultas externas envían únicamente identificadores o términos necesarios a Crossref, Library of Congress o UNESCO. El OCR, cuando se usa, se ejecuta en el navegador.</div>
+    </section>
+
+    <section id="view-materias" class="view">
+      <div class="section-head">
+        <div><span class="eyebrow">MÓDULO 1</span><h2>Asignación de materias y acceso temático</h2><p>Identifica la obra, analiza la evidencia y revisa candidatos autorizados antes de construir la salida MARC.</p></div>
+        <div class="step-chip" id="subject-step-chip">Paso 1 de 4</div>
+      </div>
+
+      <div class="workflow">
+        <div class="panel">
+          <h3>1. Identificación de la obra</h3>
+          <p class="muted">Puedes usar DOI, ISBN, PDF o combinarlos.</p>
+          <div class="form-grid">
+            <label>DOI
+              <div class="input-action"><input id="doi-input" placeholder="10.xxxx/xxxxx" autocomplete="off" /><button id="doi-search" class="secondary small">Buscar</button></div>
+            </label>
+            <label>ISBN
+              <div class="input-action"><input id="isbn-input" placeholder="978..." autocomplete="off" /><button id="isbn-search" class="secondary small">Buscar</button></div>
+            </label>
+          </div>
+          <div id="metadata-status" class="status hidden"></div>
+          <div id="metadata-card" class="metadata-card hidden"></div>
+        </div>
+
+        <div class="panel">
+          <h3>2. Documento y calidad del texto</h3>
+          <div class="dropzone" id="subject-dropzone">
+            <input id="subject-file" type="file" accept="application/pdf,.pdf" />
+            <div class="drop-icon">↥</div>
+            <b>Arrastra un PDF o selecciónalo</b>
+            <small>Preferible: PDF digital con capa de texto. Para escaneos, utiliza OCR de buena calidad.</small>
+          </div>
+          <div id="subject-file-info" class="file-info hidden"></div>
+          <div class="row gap">
+            <label class="switch-line"><input type="checkbox" id="enable-ocr" /> <span>Activar OCR local si no hay texto suficiente</span></label>
+            <label class="inline-label">Máx. materias prioritarias
+              <select id="subject-limit"><option>3</option><option>4</option><option>5</option><option>6</option></select>
+            </label>
+          </div>
+          <details class="details"><summary>¿Por qué se recomienda un PDF digital?</summary><p>La capa de texto conserva las palabras con mucha mayor fidelidad que un OCR. En un escaneo borroso, inclinado o de baja resolución, nombres, fechas y términos especializados pueden reconocerse mal y alterar el análisis temático. Para catalogación profesional, IndizaIA marca estos casos para revisión.</p></details>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title-row"><div><h3>3. Análisis documental</h3><p class="muted">El sistema separa evidencia fuerte de menciones incidentales.</p></div><button id="analyze-subject" class="primary">Analizar obra</button></div>
+          <div id="analysis-empty" class="empty-state">Agrega un PDF o metadatos y pulsa <b>Analizar obra</b>.</div>
+          <div id="analysis-results" class="hidden">
+            <div class="metrics" id="analysis-metrics"></div>
+            <div class="split">
+              <div><h4>Conceptos candidatos</h4><div id="candidate-terms" class="tag-list"></div></div>
+              <div><h4>Entidades detectadas</h4><div id="entity-terms" class="tag-list"></div></div>
+            </div>
+            <div class="notice warning" id="language-note"></div>
+            <label>Agregar concepto manualmente para consultar LC
+              <div class="input-action"><input id="manual-lc-query" placeholder="Ej. Artificial intelligence" /><button id="manual-lc-search" class="secondary small">Consultar LC</button></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title-row"><div><h3>4. Autoridades, decisión y MARC</h3><p class="muted">Cada candidato muestra evidencia, autoridad, nota de alcance y justificación.</p></div><button id="auto-lc-search" class="secondary" disabled>Buscar candidatos en LC</button></div>
+          <div id="lc-status" class="status hidden"></div>
+          <div id="lc-candidates" class="candidate-list"><div class="empty-state">Los candidatos autorizados aparecerán aquí.</div></div>
+          <div id="selected-output" class="selected-output hidden">
+            <div class="panel-title-row"><h3>Selección profesional</h3><div class="row gap"><button id="copy-marc" class="secondary small">Copiar MARC</button><button id="download-json" class="secondary small">Exportar JSON</button></div></div>
+            <pre id="marc-output" class="codebox"></pre>
+            <div id="decision-summary"></div><div id="construction-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-indizacion" class="view">
+      <div class="section-head"><div><span class="eyebrow">MÓDULO 2</span><h2>Indización de documentos</h2><p>Extrae candidatos del contenido y decide si conservar palabras clave libres o traducirlos a un vocabulario controlado.</p></div></div>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Documento</h3>
+          <div class="dropzone" id="index-dropzone">
+            <input id="index-file" type="file" accept="application/pdf,.pdf" />
+            <div class="drop-icon">↥</div><b>Cargar PDF</b><small>El archivo permanece en tu navegador.</small>
+          </div>
+          <div id="index-file-info" class="file-info hidden"></div>
+          <label class="inline-label">Número recomendado de términos<select id="keyword-limit"><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+          <button id="analyze-index" class="primary full">Analizar e indizar</button>
+        </div>
+        <div class="panel">
+          <h3>Criterios utilizados</h3>
+          <div class="method-cards">
+            <div><b>Presencia</b><span>Frecuencia y distribución</span></div>
+            <div><b>Posición</b><span>Título, inicio y cierre pesan más</span></div>
+            <div><b>Especificidad</b><span>Se penalizan términos demasiado generales</span></div>
+            <div><b>Frases</b><span>Se priorizan conceptos compuestos coherentes</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title-row"><div><h3>Resultados de indización</h3><p class="muted">Las palabras libres pueden exportarse en 653 o buscar equivalentes en UNESCO.</p></div><button id="unesco-search-all" class="secondary" disabled>Buscar equivalencias UNESCO</button></div>
+        <div id="keyword-results" class="candidate-list"><div class="empty-state">Carga un documento para comenzar.</div></div>
+        <div id="unesco-results" class="candidate-list"></div>
+      </div>
+    </section>
+
+    <section id="view-metodologia" class="view">
+      <div class="section-head"><div><span class="eyebrow">TRANSPARENCIA</span><h2>Metodología bibliotecaria</h2><p>IndizaIA es un asistente de decisión. La salida se apoya en normas y evidencia, y conserva la revisión humana en casos dudosos.</p></div></div>
+      <div class="panel prose">
+        <h3>Asignación temática</h3>
+        <ol>
+          <li><b>Identificación.</b> DOI/ISBN recuperan metadatos auxiliares desde Crossref.</li>
+          <li><b>Examen del recurso.</b> Se analiza el texto disponible y se ponderan zonas documentales. Los metadatos nunca sustituyen al contenido.</li>
+          <li><b>Conceptualización.</b> Se generan candidatos y se eliminan términos vacíos, redundantes o meramente incidentales.</li>
+          <li><b>Control de autoridad.</b> Se consulta ID.LOC.GOV. La forma autorizada, variantes, relaciones, notas de alcance y fuentes 670 recuperables quedan visibles.</li>
+          <li><b>Especificidad y cobertura.</b> Se favorece el término más específico que represente una parte sustancial del recurso. La herramienta usa el umbral del 20 % como señal de práctica LC, no como regla matemática ciega.</li>
+          <li><b>Construcción MARC.</b> Cuando ID.LOC.GOV ofrece MARCXML, IndizaIA reutiliza el campo autorizado 1XX y sus subcampos para construir 600/610/611/630/648/650/651/655. Si MARCXML no está disponible, la salida se marca <i>Revisión requerida</i>. Para subdivisión geográfica, sólo propone una construcción automática cuando la autoridad LC indica que el encabezamiento puede subdividirse geográficamente y el lugar también está autorizado.</li>
+          <li><b>Decisión.</b> Se prioriza un conjunto reducido y no redundante. El catalogador acepta, rechaza o modifica.</li>
+        </ol>
+        <div class="notice info"><b>Importante:</b> LCSH contiene reglas especiales por materia y patrón. Ningún programa estático puede convertir automáticamente todo el Subject Headings Manual en una decisión infalible. IndizaIA automatiza lo verificable y señala la revisión profesional cuando detecta ambigüedad.</div>
+        <h3>Indización libre y tesauros</h3>
+        <p>La frecuencia por sí sola no equivale a relevancia temática. El sistema combina frecuencia, distribución, posición y especificidad para proponer términos. Después, el usuario puede mantenerlos como términos no controlados (MARC 653) o consultar equivalentes preferidos del Tesauro de la UNESCO.</p>
+        <h3>Fuentes normativas y servicios</h3>
+        <div class="refs">
+          <a href="https://www.loc.gov/aba/publications/FreeSHM/freeshm.html" target="_blank" rel="noopener">Subject Headings Manual (LC)</a>
+          <a href="https://www.loc.gov/marc/bibliographic/" target="_blank" rel="noopener">MARC 21 Bibliographic</a>
+          <a href="https://id.loc.gov/" target="_blank" rel="noopener">ID.LOC.GOV</a>
+          <a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/" target="_blank" rel="noopener">Crossref REST API</a>
+          <a href="https://vocabularies.unesco.org/" target="_blank" rel="noopener">Tesauro de la UNESCO</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-ayuda" class="view">
+      <div class="section-head"><div><span class="eyebrow">GUÍA RÁPIDA</span><h2>Cómo usar IndizaIA</h2></div></div>
+      <div class="grid two">
+        <article class="panel prose"><h3>Asignar encabezamientos</h3><ol><li>Introduce DOI/ISBN si lo tienes.</li><li>Carga preferentemente el PDF digital.</li><li>Pulsa <b>Analizar obra</b>.</li><li>Revisa conceptos y entidades detectados.</li><li>Pulsa <b>Buscar candidatos en LC</b>.</li><li>Abre cada candidato y revisa forma autorizada, nota de alcance, variantes y relaciones.</li><li>Selecciona sólo los encabezamientos que representen realmente la obra.</li><li>Copia/exporta la propuesta MARC y realiza la revisión catalográfica final.</li></ol></article>
+        <article class="panel prose"><h3>Indizar un documento</h3><ol><li>Carga un PDF.</li><li>Selecciona cuántos términos finales deseas.</li><li>Pulsa <b>Analizar e indizar</b>.</li><li>Revisa por qué cada término fue recomendado o descartado.</li><li>Conserva palabras clave libres o consulta equivalencias UNESCO.</li></ol></article>
+      </div>
+      <div class="panel prose">
+        <h3>Calidad del PDF</h3>
+        <p><b>Mejor opción:</b> PDF digital con capa de texto. <b>Aceptable:</b> PDF escaneado con OCR previo de buena calidad. <b>Uso de apoyo:</b> escaneo sin OCR; IndizaIA puede intentar reconocimiento local, pero el proceso es más lento y menos confiable.</p>
+        <h3>Qué se envía a Internet</h3>
+        <table><thead><tr><th>Servicio</th><th>Dato enviado</th><th>PDF/texto completo</th></tr></thead><tbody><tr><td>Crossref</td><td>DOI o ISBN</td><td>No</td></tr><tr><td>Library of Congress</td><td>Términos candidatos / URI de autoridad</td><td>No</td></tr><tr><td>UNESCO</td><td>Términos candidatos</td><td>No</td></tr></tbody></table>
+        <button id="clear-session" class="danger">Borrar datos de esta sesión</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>IndizaIA · Proyecto académico</span><span>Procesamiento documental local · Autoridades externas en línea</span></footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="loading" class="loading hidden" aria-live="polite"><div class="spinner"></div><b id="loading-text">Procesando…</b><small id="loading-subtext"></small></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
